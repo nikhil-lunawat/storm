@@ -224,6 +224,10 @@ public class ConfigUtils {
         return instance.supervisorStormDistRootImpl(conf, stormId);
     }
 
+    public static String sharedByTopologyDir(Map<String, Object> conf, String stormId) throws IOException {
+        return supervisorStormDistRoot(conf, stormId) + FILE_SEPARATOR + "shared_by_topology";
+    }
+
     public static String supervisorStormJarPath(String stormRoot) {
         return (concatIfNotNull(stormRoot) + FILE_SEPARATOR + "stormjar.jar");
     }

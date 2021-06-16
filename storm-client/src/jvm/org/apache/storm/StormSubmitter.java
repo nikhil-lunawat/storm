@@ -131,7 +131,7 @@ public class StormSubmitter {
      */
     public static boolean pushCredentials(String name, Map<String, Object> topoConf, Map<String, String> credentials, String expectedUser)
         throws AuthorizationException, NotAliveException, InvalidTopologyException {
-        topoConf = new HashMap(topoConf);
+        topoConf = new HashMap<>(topoConf);
         topoConf.putAll(Utils.readCommandLineOpts());
         Map<String, Object> conf = Utils.readStormConfig();
         conf.putAll(topoConf);

@@ -146,14 +146,18 @@ public class Worker implements Shutdownable, DaemonCommon {
         String portStr = args[3];
         String workerId = args[4];
         Map<String, Object> conf = ConfigUtils.readStormConfig();
-        Utils.setupDefaultUncaughtExceptionHandler();
+        Utils.setupWorkerUncaughtExceptionHandler();
         StormCommon.validateDistributedMode(conf);
         int supervisorPortInt = Integer.parseInt(supervisorPort);
         Worker worker = new Worker(conf, null, stormId, assignmentId, supervisorPortInt, Integer.parseInt(portStr), workerId);
-        worker.start();
+
+        //Add shutdown hooks before starting any other threads to avoid possible race condition
+        //between invoking shutdown hooks and registering shutdown hooks. See STORM-3658.
         int workerShutdownSleepSecs = ObjectReader.getInt(conf.get(Config.SUPERVISOR_WORKER_SHUTDOWN_SLEEP_SECS));
         LOG.info("Adding shutdown hook with kill in {} secs", workerShutdownSleepSecs);
         Utils.addShutdownHookWithDelayedForceKill(worker::shutdown, workerShutdownSleepSecs);
+
+        worker.start();
     }
 
     public void start() throws Exception {

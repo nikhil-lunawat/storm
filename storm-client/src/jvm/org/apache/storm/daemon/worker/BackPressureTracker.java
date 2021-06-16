@@ -19,7 +19,6 @@
 package org.apache.storm.daemon.worker;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,7 +28,6 @@ import org.apache.storm.messaging.netty.BackPressureStatus;
 import org.apache.storm.shade.org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.storm.shade.org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.storm.utils.JCQueue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,7 +107,7 @@ public class BackPressureTracker {
     }
 
 
-    
+
     public static class BackpressureState {
         private final JCQueue queue;
         //No task is under backpressure initially

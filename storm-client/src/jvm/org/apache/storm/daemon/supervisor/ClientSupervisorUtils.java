@@ -71,13 +71,16 @@ public class ClientSupervisorUtils {
         try {
             process.waitFor();
         } catch (InterruptedException e) {
-            LOG.info("{} interrupted.", logPreFix);
+            LOG.warn("{} interrupted.", logPreFix);
+            Thread.currentThread().interrupt();
+            process.destroy();
+            throw new IOException(logPreFix + " interrupted", e);
         }
         ret = process.exitValue();
         return ret;
     }
 
-    static Process processLauncher(Map<String, Object> conf, String user, List<String> commandPrefix, List<String> args,
+    public static Process processLauncher(Map<String, Object> conf, String user, List<String> commandPrefix, List<String> args,
                                    Map<String, String> environment, final String logPreFix,
                                    final ExitCodeCallback exitCodeCallback, File dir) throws IOException {
         if (StringUtils.isBlank(user)) {
