@@ -251,7 +251,7 @@ public class Utils {
             throw Utils.wrapInRuntime(e);
         }
     }
-    
+
     /**
      * URL decode the given string using the UTF-8 charset. Once Storm is baselined to Java 11, we can use URLDecoder.decode(String,
      * Charset) instead, which obsoletes this method.
@@ -265,7 +265,7 @@ public class Utils {
             throw Utils.wrapInRuntime(e);
         }
     }
-    
+
     public static Map<String, Object> readCommandLineOpts() {
         Map<String, Object> ret = new HashMap<>();
         String commandOptions = System.getProperty("storm.options");
@@ -391,12 +391,21 @@ public class Utils {
                         if (Thread.interrupted()) {
                             throw new InterruptedException();
                         }
-                        final Long s = fn.call();
-                        if (s == null) { // then stop running it
-                            break;
-                        }
-                        if (s > 0) {
-                            Time.sleep(s);
+                        try {
+                            final Long s = fn.call();
+                            if (s == null) { // then stop running it
+                                break;
+                            }
+                            if (s > 0) {
+                                Time.sleep(s);
+                            }
+                        } catch (RuntimeException e) {
+                            if (Utils.exceptionCauseIsInstanceOf(
+                                  "org.apache.kafka.common.errors.TimeoutException", e)) {
+                                LOG.error("Got timeout exception", e);
+                                continue;
+                            }
+                            throw e;
                         }
                     }
                 } catch (Throwable t) {
@@ -467,9 +476,23 @@ public class Utils {
         return unwrapTo(klass, throwable) != null;
     }
 
+    private static boolean exceptionCauseIsInstanceOf(String klass, Throwable throwable) {
+        return unwrapTo(klass, throwable) != null;
+    }
+
     public static <T extends Throwable> T unwrapTo(Class<T> klass, Throwable t) {
         while (t != null) {
             if (klass.isInstance(t)) {
+                return (T) t;
+            }
+            t = t.getCause();
+        }
+        return null;
+    }
+
+    private static <T extends Throwable> T unwrapTo(String klass, Throwable t) {
+        while (t != null) {
+            if (klass.equals(t.getClass().getName())) {
                 return (T) t;
             }
             t = t.getCause();
@@ -734,7 +757,7 @@ public class Utils {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static void sleep(long millis) {
         try {
             Time.sleep(millis);
