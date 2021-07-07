@@ -403,6 +403,7 @@ public class Utils {
                             if (Utils.exceptionCauseIsInstanceOf(
                                   "org.apache.kafka.common.errors.TimeoutException", e)) {
                                 LOG.error("Got timeout exception", e);
+                                Thread.sleep(1000);
                                 continue;
                             }
                             throw e;
